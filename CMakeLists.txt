@@ -18,6 +18,8 @@ target_link_libraries(print_template_specialization
             clangTooling
         )
 
+add_executable(sample sample.cpp)
+
 set(copy_source_dir "${CMAKE_SOURCE_DIR}")
 set(copy_dest_dir "${CMAKE_BINARY_DIR}")
 set(copy_file_name "sample.cpp")

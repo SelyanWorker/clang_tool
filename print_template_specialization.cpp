@@ -7,10 +7,11 @@
 #include "clang/Frontend/FrontendAction.h"
 #include "clang/Tooling/Tooling.h"
 
-class FindNamedClassVisitor
-    : public clang::RecursiveASTVisitor<FindNamedClassVisitor> {
+class PrintTemplateSpecializationClassVisitor
+    : public clang::RecursiveASTVisitor<
+          PrintTemplateSpecializationClassVisitor> {
 public:
-  explicit FindNamedClassVisitor(clang::ASTContext *Context)
+  explicit PrintTemplateSpecializationClassVisitor(clang::ASTContext *Context)
   : Context(Context) {}
 
   bool VisitTemplateSpecializationType(
@@ -21,8 +22,10 @@ public:
       clang::PrintingPolicy pp(Context->getLangOpts());
       std::string typeName = templateSpec.getAsType().getAsString(pp);
 
-      std::cout << typeName << std::endl;
+      std::cout << typeName << " ";
     }
+
+    std::cout << std::endl;
 
     return true;
   }
@@ -31,23 +34,23 @@ private:
   clang::ASTContext *Context;
 };
 
-class FindNamedClassConsumer : public clang::ASTConsumer {
+class PrintTemplateSpecializationConsumer : public clang::ASTConsumer {
 public:
-  explicit FindNamedClassConsumer(clang::ASTContext *Context)
+  explicit PrintTemplateSpecializationConsumer(clang::ASTContext *Context)
   : Visitor(Context) {}
 
   virtual void HandleTranslationUnit(clang::ASTContext &Context) {
     Visitor.TraverseDecl(Context.getTranslationUnitDecl());
   }
 private:
-  FindNamedClassVisitor Visitor;
+  PrintTemplateSpecializationClassVisitor Visitor;
 };
 
 class FindNamedClassAction : public clang::ASTFrontendAction {
 public:
   virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
       clang::CompilerInstance &Compiler, llvm::StringRef InFile) {
-    return std::make_unique<FindNamedClassConsumer>(&Compiler.getASTContext());
+    return std::make_unique<PrintTemplateSpecializationConsumer>(&Compiler.getASTContext());
   }
 };
 

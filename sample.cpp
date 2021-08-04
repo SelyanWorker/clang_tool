@@ -1,26 +1,33 @@
 
 
-template<typename T>
-class test_class{};
+template<typename ...ArgvT>
+class some_template_class{};
 
-template<typename T>
-struct test_struct{};
-
-template<typename T>
-void test_fun(){}
 
 
 template<>
-class test_class<double>{};
+class some_template_class<double>{};
 
 struct shit_struct {};
 
 class shit_class {};
 
-void foo()
+template<typename ...ArgvT>
+void foo(ArgvT... argv)
+{}
+
+int main()
 {
-  test_class<int> govno;
-  test_struct<unsigned> govno_1;
-  test_struct<shit_struct> govno_2;
-  test_struct<shit_class> govno_3;
+  some_template_class<int> govno;
+  some_template_class<unsigned> govno_1;
+  some_template_class<shit_struct> govno_2;
+  some_template_class<shit_class> govno_3;
+  some_template_class<float> govno_4;
+  some_template_class<float, int, unsigned, shit_class, shit_struct> govno_5;
+
+  foo(double{}, int{}, unsigned{});
+  foo(double{}, int{}, unsigned{}, shit_struct{}, shit_class{});
+  foo<double, int, unsigned>(double{}, int{}, unsigned{});
+
+  return 0;
 }
