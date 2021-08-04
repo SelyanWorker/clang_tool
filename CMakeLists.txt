@@ -11,21 +11,21 @@ set(LLVM_LINK_COMPONENTS
 add_executable(print_template_specialization print_template_specialization.cpp)
 target_link_libraries(print_template_specialization
         PRIVATE
-            clangAST
-            clangBasic
-            clangFrontend
-            clangSerialization
-            clangTooling
+        clangAST
+        clangBasic
+        clangFrontend
+        clangSerialization
+        clangTooling
         )
 
 add_executable(print_arg_types print_arg_types.cpp)
 target_link_libraries(print_arg_types
         PRIVATE
-            clangAST
-            clangBasic
-            clangFrontend
-            clangSerialization
-            clangTooling
+        clangAST
+        clangBasic
+        clangFrontend
+        clangSerialization
+        clangTooling
         )
 
 add_executable(sample sample.cpp)
