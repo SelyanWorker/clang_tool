@@ -25,9 +25,9 @@ int main()
   some_template_class<float> govno_4;
   some_template_class<float, int, unsigned, shit_class, shit_struct> govno_5;
 
+  foo(double{});
   foo(double{}, int{}, unsigned{});
   foo(double{}, int{}, unsigned{}, shit_struct{}, shit_class{});
-  foo<double, int, unsigned>(double{}, int{}, unsigned{});
 
   return 0;
 }
