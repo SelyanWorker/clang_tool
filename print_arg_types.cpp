@@ -7,6 +7,8 @@
 #include "clang/Frontend/FrontendAction.h"
 #include "clang/Tooling/Tooling.h"
 
+std::string function_name{ "" };
+
 class PrintArgTypesVisitor
     : public clang::RecursiveASTVisitor<PrintArgTypesVisitor> {
 public:
@@ -15,13 +17,20 @@ public:
 
   bool VisitDeclRefExpr(clang::DeclRefExpr* declRefExpr)
   {
-    std::cout << declRefExpr->getNameInfo().getAsString() << ": ";
+    auto fun_name = declRefExpr->getNameInfo().getAsString();
+
+    if (fun_name != function_name)
+      return true;
+
+    std::cout << fun_name << ": ";
+
     auto paramTypes = declRefExpr->getType()->getAs<clang::FunctionProtoType>()->getParamTypes();
     clang::PrintingPolicy pp(Context->getLangOpts());
     for(auto t : paramTypes)
       std::cout << t.getAsString(pp) << " ";
 
     std::cout << std::endl;
+
     return true;
   }
 
@@ -51,22 +60,25 @@ public:
 };
 
 int main(int argc, char **argv) {
-  if (argc > 1)
-  {
-    std::ifstream f{ argv[1] };
+  if (argc < 3)
+    return -1;
 
-    if (!f.is_open())
-      return -1;
+  std::ifstream f{ argv[1] };
 
-    std::string src;
+  if (!f.is_open())
+    return -1;
 
-    f.seekg(0, std::ios::end);
-    src.reserve(f.tellg());
-    f.seekg(0, std::ios::beg);
+  std::string src;
 
-    src.assign((std::istreambuf_iterator<char>(f)),
-               std::istreambuf_iterator<char>());
+  f.seekg(0, std::ios::end);
+  src.reserve(f.tellg());
+  f.seekg(0, std::ios::beg);
 
-    clang::tooling::runToolOnCode(std::make_unique<PrintArgTypesAction>(), src.c_str());
-  }
+  src.assign((std::istreambuf_iterator<char>(f)),
+             std::istreambuf_iterator<char>());
+
+  function_name = argv[2];
+
+  clang::tooling::runToolOnCode(std::make_unique<PrintArgTypesAction>(), src.c_str());
+
 }
