@@ -18,9 +18,20 @@ class shit_class
 {
 };
 
-template<typename... ArgvT>
-void foo(ArgvT... argv)
+template<typename T>
+T bar(T t)
 {
+    return t;
+}
+
+template<typename... Args>
+void foo(Args... args)
+{ }
+
+template<typename... Args>
+void foo2(Args... args)
+{
+    foo(bar(args)...);
 }
 
 int main()
@@ -32,9 +43,9 @@ int main()
     some_template_class<float> govno_4;
     some_template_class<float, int, unsigned, shit_class, shit_struct> govno_5;
 
-    foo(double{});
-    foo(double{}, int{}, unsigned{});
-    foo(double{}, int{}, unsigned{}, shit_struct{}, shit_class{});
+    foo2(double{});
+    foo2(double{}, int{}, unsigned{});
+    bar(float{});
 
     return 0;
 }
