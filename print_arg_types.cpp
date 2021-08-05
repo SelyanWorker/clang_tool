@@ -9,6 +9,8 @@
 
 std::string function_name{ "" };
 
+constexpr char file_name[] = "sample.cpp";
+
 class PrintArgTypesVisitor : public clang::RecursiveASTVisitor<PrintArgTypesVisitor>
 {
 public:
@@ -64,10 +66,10 @@ public:
 
 int main(int argc, char **argv)
 {
-    if (argc < 3)
+    if (argc < 2)
         return -1;
 
-    std::ifstream f{ argv[1] };
+    std::ifstream f{ file_name };
 
     if (!f.is_open())
         return -1;

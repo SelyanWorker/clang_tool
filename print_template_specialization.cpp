@@ -7,6 +7,8 @@
 #include "clang/Frontend/FrontendAction.h"
 #include "clang/Tooling/Tooling.h"
 
+constexpr char file_name[] = "sample.cpp";
+
 class PrintTemplateSpecializationClassVisitor :
   public clang::RecursiveASTVisitor<PrintTemplateSpecializationClassVisitor>
 {
@@ -63,7 +65,7 @@ int main(int argc, char **argv)
 {
     if (argc > 1)
     {
-        std::ifstream f{ argv[1] };
+        std::ifstream f{ file_name };
 
         if (!f.is_open())
             return -1;

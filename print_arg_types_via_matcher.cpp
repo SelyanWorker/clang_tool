@@ -10,9 +10,11 @@ using namespace clang;
 using namespace clang::tooling;
 using namespace clang::ast_matchers;
 
-constexpr char id_to_bind[] = { "dick" };
+constexpr char id_to_bind[] = "dick";
 
 std::string function_name{ };
+
+constexpr char file_name[] = "sample.cpp";
 
 class DumpCallback : public MatchFinder::MatchCallback
 {
@@ -55,10 +57,10 @@ private:
 
 int main(int argc, char **argv)
 {
-    if (argc < 3)
+    if (argc < 2)
         return -1;
 
-    std::ifstream f{ argv[1] };
+    std::ifstream f{ file_name };
 
     if (!f.is_open())
         return -1;
@@ -71,7 +73,7 @@ int main(int argc, char **argv)
 
     src.assign((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
 
-    function_name = argv[2];
+    function_name = argv[1];
 
     std::vector<std::string> types;
 
