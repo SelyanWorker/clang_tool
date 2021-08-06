@@ -1,5 +1,6 @@
 
 
+#include <utility>
 template<typename... ArgvT>
 class some_template_class
 {
@@ -18,20 +19,16 @@ class shit_class
 {
 };
 
-template<typename T>
-T bar(T t)
+template<typename T, typename G>
+T bar(T t, G g)
 {
     return t;
 }
 
 template<typename... Args>
-void foo(Args... args)
-{ }
-
-template<typename... Args>
 void foo2(Args... args)
 {
-    foo(bar(args)...);
+    std::initializer_list<int>{(bar(args.first, args.second), 0)...};
 }
 
 int main()
@@ -43,9 +40,9 @@ int main()
     some_template_class<float> govno_4;
     some_template_class<float, int, unsigned, shit_class, shit_struct> govno_5;
 
-    foo2(double{});
-    foo2(double{}, int{}, unsigned{});
-    bar(float{});
+    foo2(std::make_pair(double{}, int{}));
+    foo2(std::make_pair(double{}, int{}));
+    foo2(std::make_pair(float{}, unsigned {}));
 
     return 0;
 }

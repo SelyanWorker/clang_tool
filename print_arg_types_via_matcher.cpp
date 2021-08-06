@@ -18,22 +18,17 @@ constexpr char file_name[] = "sample.cpp";
 
 class DumpCallback : public MatchFinder::MatchCallback
 {
-public:
-    using callable_type = void(const std::string&);
-
-    template<typename CallableT>
-    void setCallable(CallableT&& callable)
-    {
-        m_callback = std::forward<CallableT>(callable);
-    }
-
 private:
     virtual void run(const MatchFinder::MatchResult &Result)
     {
         const FunctionTemplateDecl *functionTemplateDecl =
             Result.Nodes.getNodeAs<FunctionTemplateDecl>(id_to_bind);
 
-        if (function_name != functionTemplateDecl->getIdentifier()->getName().str())
+        auto identifierPtr = functionTemplateDecl->getIdentifier();
+        if (identifierPtr == nullptr)
+            return;
+
+        if (function_name != identifierPtr->getName().str())
             return;
 
         auto arrayOfSpecializations = functionTemplateDecl->specializations();
@@ -46,13 +41,12 @@ private:
             auto specializationArgsArray = specializationArgs->asArray();
             for(auto arg : specializationArgsArray)
             {
-                m_callback(arg.getAsType().getAsString());
+                std::cout << "\"" << arg.getAsType().getAsString() << "\"" << " ";
             }
+            std::cout << std::endl;
         }
     }
 
-private:
-    std::function<callable_type> m_callback;
 };
 
 int main(int argc, char **argv)
@@ -78,18 +72,11 @@ int main(int argc, char **argv)
     std::vector<std::string> types;
 
     DumpCallback callback;
-    callback.setCallable([&types](const std::string &type) { types.push_back(type); });
 
     MatchFinder finder;
     finder.addMatcher(functionTemplateDecl().bind(id_to_bind), &callback);
 
     std::unique_ptr<FrontendActionFactory> factory = { newFrontendActionFactory(&finder) };
 
-    bool runToolOnCodeResult = clang::tooling::runToolOnCode(factory->create(), src);
-
-    if (runToolOnCodeResult)
-        for(auto type : types)
-            std::cout << type << std::endl;
-
-    return runToolOnCodeResult;
+    return clang::tooling::runToolOnCode(factory->create(), src);
 }
