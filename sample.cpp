@@ -1,6 +1,5 @@
-
-
 #include <utility>
+
 template<typename... ArgvT>
 class some_template_class
 {
@@ -28,8 +27,45 @@ T bar(T t, G g)
 template<typename... Args>
 void foo2(Args... args)
 {
-    std::initializer_list<int>{(bar(args.first, args.second), 0)...};
+    std::initializer_list<int>{ (bar(args.first, args.second), 0)... };
 }
+
+class shit_place
+{
+public:
+    template<typename T>
+    void template_shit_fun()
+    {
+    }
+
+    template<typename T>
+    struct template_shit_struct
+    {
+    };
+
+    void shit_fun() {}
+
+    struct shit_struct
+    {
+    };
+
+private:
+    template<typename T>
+    void template_shit_fun_()
+    {
+    }
+
+    template<typename T>
+    struct template_shit_struct_
+    {
+    };
+
+    void shit_fun_() {}
+
+    struct shit_struct_
+    {
+    };
+};
 
 int main()
 {
@@ -42,7 +78,7 @@ int main()
 
     foo2(std::make_pair(double{}, int{}));
     foo2(std::make_pair(double{}, int{}));
-    foo2(std::make_pair(float{}, unsigned {}));
+    foo2(std::make_pair(float{}, unsigned{}));
 
     return 0;
 }

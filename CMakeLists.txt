@@ -40,6 +40,16 @@ target_link_libraries(print_arg_types_via_matcher
         clangTooling
         )
 
+add_executable(shit_printer shit_printer.cpp)
+target_link_libraries(shit_printer
+        PRIVATE
+        clangAST
+        clangBasic
+        clangFrontend
+        clangSerialization
+        clangTooling
+        )
+
 add_executable(sample sample.cpp)
 
 set(copy_source_dir "${CMAKE_SOURCE_DIR}")
@@ -60,5 +70,10 @@ add_custom_command(
 
 add_custom_command(
         TARGET print_arg_types_via_matcher POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${copy_source_dir}/${copy_file_name}" "${copy_dest_dir}/${copy_file_name}"
+)
+
+add_custom_command(
+        TARGET shit_printer POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy "${copy_source_dir}/${copy_file_name}" "${copy_dest_dir}/${copy_file_name}"
 )
