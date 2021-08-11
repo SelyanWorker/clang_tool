@@ -9,8 +9,8 @@ using namespace clang;
 using namespace clang::tooling;
 using namespace clang::ast_matchers;
 
-constexpr char id_to_bind[] = "dick";
-constexpr char public_shit_id[] = "public_shit";
+constexpr char some_id[] = "some_id";
+constexpr char public_things_of_given_class[] = "public_things_of_given_class";
 
 std::string function_name{};
 std::string class_name{};
@@ -23,7 +23,7 @@ private:
     virtual void run(const MatchFinder::MatchResult &Result)
     {
         const FunctionTemplateDecl *functionTemplateDecl =
-            Result.Nodes.getNodeAs<FunctionTemplateDecl>(id_to_bind);
+            Result.Nodes.getNodeAs<FunctionTemplateDecl>(some_id);
         if (functionTemplateDecl == nullptr)
             return;
 
@@ -52,12 +52,12 @@ private:
     }
 };
 
-class ShitMethodsCallback : public MatchFinder::MatchCallback
+class MethodsCallback : public MatchFinder::MatchCallback
 {
 private:
     virtual void run(const MatchFinder::MatchResult &Result)
     {
-        const auto *cxxMethodDecl = Result.Nodes.getNodeAs<clang::CXXMethodDecl>(public_shit_id);
+        const auto *cxxMethodDecl = Result.Nodes.getNodeAs<clang::CXXMethodDecl>(public_things_of_given_class);
         if (cxxMethodDecl == nullptr)
             return;
 
@@ -69,12 +69,12 @@ private:
     }
 };
 
-class ShitTypesCallback : public MatchFinder::MatchCallback
+class TypesCallback : public MatchFinder::MatchCallback
 {
 private:
     virtual void run(const MatchFinder::MatchResult &Result)
     {
-        const auto *cxxRecordDecl = Result.Nodes.getNodeAs<clang::CXXRecordDecl>(public_shit_id);
+        const auto *cxxRecordDecl = Result.Nodes.getNodeAs<clang::CXXRecordDecl>(public_things_of_given_class);
         if (cxxRecordDecl == nullptr)
             return;
 
@@ -100,7 +100,7 @@ private:
     virtual void run(const MatchFinder::MatchResult &Result)
     {
         const auto *classTemplateDecl =
-            Result.Nodes.getNodeAs<clang::ClassTemplateDecl>(public_shit_id);
+            Result.Nodes.getNodeAs<clang::ClassTemplateDecl>(public_things_of_given_class);
         if (classTemplateDecl == nullptr)
             return;
 
@@ -145,21 +145,21 @@ int main(int argc, char **argv)
     class_name = argv[2];
 
     DeclarationMatcher publicMethodMatcher =
-        clang::ast_matchers::cxxMethodDecl(isPublic(), unless(isImplicit())).bind(public_shit_id);
+        clang::ast_matchers::cxxMethodDecl(isPublic(), unless(isImplicit())).bind(public_things_of_given_class);
     DeclarationMatcher publicTypeMatcher =
-        clang::ast_matchers::cxxRecordDecl(isPublic()).bind(public_shit_id);
+        clang::ast_matchers::cxxRecordDecl(isPublic()).bind(public_things_of_given_class);
     DeclarationMatcher publicTemplateTypeMatcher =
-        clang::ast_matchers::classTemplateDecl(isPublic()).bind(public_shit_id);
+        clang::ast_matchers::classTemplateDecl(isPublic()).bind(public_things_of_given_class);
 
     FunctionTemplateDeclCallback functionTemplateDeclCallback;
-    ShitMethodsCallback printPublicShitMethodsCallback;
-    ShitTypesCallback printPublicShitTypesCallback;
+    MethodsCallback printPublicMethodsCallback;
+    TypesCallback printPublicTypesCallback;
     TemplateClassCallback printPublicTemplateClassCallback;
 
     MatchFinder finder;
-    finder.addMatcher(functionTemplateDecl().bind(id_to_bind), &functionTemplateDeclCallback);
-    finder.addMatcher(publicMethodMatcher, &printPublicShitMethodsCallback);
-    finder.addMatcher(publicTypeMatcher, &printPublicShitTypesCallback);
+    finder.addMatcher(functionTemplateDecl().bind(some_id), &functionTemplateDeclCallback);
+    finder.addMatcher(publicMethodMatcher, &printPublicMethodsCallback);
+    finder.addMatcher(publicTypeMatcher, &printPublicTypesCallback);
     finder.addMatcher(publicTemplateTypeMatcher, &printPublicTemplateClassCallback);
 
     std::unique_ptr<FrontendActionFactory> factory = { newFrontendActionFactory(&finder) };
