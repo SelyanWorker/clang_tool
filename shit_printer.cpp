@@ -1,5 +1,4 @@
 #include "clang/ASTMatchers/ASTMatchFinder.h"
-#include "clang/ASTMatchers/ASTMatchers.h"
 #include "clang/Tooling/Tooling.h"
 #include <fstream>
 #include <iostream>
@@ -18,7 +17,7 @@ std::string class_name{};
 
 constexpr char file_name[] = "sample.cpp";
 
-class DumpCallback : public MatchFinder::MatchCallback
+class FunctionTemplateDeclCallback : public MatchFinder::MatchCallback
 {
 private:
     virtual void run(const MatchFinder::MatchResult &Result)
@@ -145,26 +144,20 @@ int main(int argc, char **argv)
     function_name = argv[1];
     class_name = argv[2];
 
-    std::vector<std::string> types;
-
     DeclarationMatcher publicMethodMatcher =
         clang::ast_matchers::cxxMethodDecl(isPublic(), unless(isImplicit())).bind(public_shit_id);
-
     DeclarationMatcher publicTypeMatcher =
         clang::ast_matchers::cxxRecordDecl(isPublic()).bind(public_shit_id);
-
     DeclarationMatcher publicTemplateTypeMatcher =
         clang::ast_matchers::classTemplateDecl(isPublic()).bind(public_shit_id);
 
-    TypeMatcher typeMatcher = clang::ast_matchers::type();
-
-    DumpCallback callback;
+    FunctionTemplateDeclCallback functionTemplateDeclCallback;
     ShitMethodsCallback printPublicShitMethodsCallback;
     ShitTypesCallback printPublicShitTypesCallback;
     TemplateClassCallback printPublicTemplateClassCallback;
 
     MatchFinder finder;
-    finder.addMatcher(functionTemplateDecl().bind(id_to_bind), &callback);
+    finder.addMatcher(functionTemplateDecl().bind(id_to_bind), &functionTemplateDeclCallback);
     finder.addMatcher(publicMethodMatcher, &printPublicShitMethodsCallback);
     finder.addMatcher(publicTypeMatcher, &printPublicShitTypesCallback);
     finder.addMatcher(publicTemplateTypeMatcher, &printPublicTemplateClassCallback);
