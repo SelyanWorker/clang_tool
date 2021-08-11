@@ -11,6 +11,7 @@ using namespace clang::tooling;
 using namespace clang::ast_matchers;
 
 constexpr char id_to_bind[] = "dick";
+constexpr char public_shit_id[] = "public_shit";
 
 std::string function_name{};
 std::string class_name{};
@@ -24,6 +25,8 @@ private:
     {
         const FunctionTemplateDecl *functionTemplateDecl =
             Result.Nodes.getNodeAs<FunctionTemplateDecl>(id_to_bind);
+        if (functionTemplateDecl == nullptr)
+            return;
 
         auto identifierPtr = functionTemplateDecl->getIdentifier();
         if (identifierPtr == nullptr)
@@ -50,55 +53,73 @@ private:
     }
 };
 
-class PrintPublicShitMethodsCallback : public MatchFinder::MatchCallback
+class ShitMethodsCallback : public MatchFinder::MatchCallback
 {
 private:
     virtual void run(const MatchFinder::MatchResult &Result)
     {
-        if (const CXXMethodDecl *md = Result.Nodes.getNodeAs<clang::CXXMethodDecl>("publicShit"))
-        {
-            if (md->getParent() == nullptr || md->getParent()->getNameAsString() != class_name)
-                return;
+        const auto *cxxMethodDecl = Result.Nodes.getNodeAs<clang::CXXMethodDecl>(public_shit_id);
+        if (cxxMethodDecl == nullptr)
+            return;
 
-            std::cout << md->getNameAsString() << std::endl;
-        }
+        auto parent = cxxMethodDecl->getParent();
+        if (parent == nullptr || parent->getNameAsString() != class_name)
+            return;
+
+        std::cout << cxxMethodDecl->getNameAsString() << std::endl;
     }
 };
 
-class PrintPublicShitTypesCallback : public MatchFinder::MatchCallback
+class ShitTypesCallback : public MatchFinder::MatchCallback
 {
 private:
     virtual void run(const MatchFinder::MatchResult &Result)
     {
-        if (const CXXRecordDecl *rd = Result.Nodes.getNodeAs<clang::CXXRecordDecl>("publicShit"))
-        {
-            if (rd->getParent() == nullptr || rd->getNameAsString() == class_name)
-                return;
+        const auto *cxxRecordDecl = Result.Nodes.getNodeAs<clang::CXXRecordDecl>(public_shit_id);
+        if (cxxRecordDecl == nullptr)
+            return;
 
-            if (auto *tagDeclPtr = dyn_cast<const clang::TagDecl>(rd->getParent()))
-            {
-                if (tagDeclPtr->getNameAsString() == class_name)
-                    std::cout << rd->getNameAsString() << std::endl;
-            }
-        }
+        auto name = cxxRecordDecl->getNameAsString();
+        if (name == class_name)
+            return;
+
+        auto parent = cxxRecordDecl->getParent();
+        if (parent == nullptr)
+            return;
+
+        auto *parentTagDeclPtr = dyn_cast<const clang::TagDecl>(parent);
+        if (parentTagDeclPtr == nullptr || parentTagDeclPtr->getNameAsString() != class_name)
+            return;
+
+        std::cout << name << std::endl;
     }
 };
 
-class PrintPublicTemplateClassCallback : public MatchFinder::MatchCallback
+class TemplateClassCallback : public MatchFinder::MatchCallback
+{
+private:
+    virtual void run(const MatchFinder::MatchResult &Result)
     {
-    private:
-        virtual void run(const MatchFinder::MatchResult &Result)
-        {
-            if (const ClassTemplateDecl *td = Result.Nodes.getNodeAs<clang::ClassTemplateDecl>("publicShit"))
-            {
-                if (td->getTemplatedDecl()->getParent() == nullptr ||
-                    td->getNameAsString() == class_name)
-                    return;
+        const auto *classTemplateDecl =
+            Result.Nodes.getNodeAs<clang::ClassTemplateDecl>(public_shit_id);
+        if (classTemplateDecl == nullptr)
+            return;
 
-                std::cout << td->getNameAsString() << std::endl;
-            }
-        }
-    };
+        auto name = classTemplateDecl->getNameAsString();
+        if (name == class_name)
+            return;
+
+        auto parent = classTemplateDecl->getTemplatedDecl()->getParent();
+        if (parent == nullptr)
+            return;
+
+        auto *parentTagDeclPtr = dyn_cast<const clang::TagDecl>(parent);
+        if (parentTagDeclPtr == nullptr || parentTagDeclPtr->getNameAsString() != class_name)
+            return;
+
+        std::cout << name << std::endl;
+    }
+};
 
 int main(int argc, char **argv)
 {
@@ -127,21 +148,20 @@ int main(int argc, char **argv)
     std::vector<std::string> types;
 
     DeclarationMatcher publicMethodMatcher =
-        clang::ast_matchers::cxxMethodDecl(isPublic(), unless(isImplicit())).bind("publicShit");
+        clang::ast_matchers::cxxMethodDecl(isPublic(), unless(isImplicit())).bind(public_shit_id);
 
     DeclarationMatcher publicTypeMatcher =
-        clang::ast_matchers::cxxRecordDecl(isPublic()).bind("publicShit");
+        clang::ast_matchers::cxxRecordDecl(isPublic()).bind(public_shit_id);
 
     DeclarationMatcher publicTemplateTypeMatcher =
-        clang::ast_matchers::classTemplateDecl(isPublic()).bind("publicShit");
+        clang::ast_matchers::classTemplateDecl(isPublic()).bind(public_shit_id);
 
     TypeMatcher typeMatcher = clang::ast_matchers::type();
 
     DumpCallback callback;
-    PrintPublicShitMethodsCallback printPublicShitMethodsCallback;
-    PrintPublicShitTypesCallback printPublicShitTypesCallback;
-    PrintPublicTemplateClassCallback printPublicTemplateClassCallback;
-
+    ShitMethodsCallback printPublicShitMethodsCallback;
+    ShitTypesCallback printPublicShitTypesCallback;
+    TemplateClassCallback printPublicTemplateClassCallback;
 
     MatchFinder finder;
     finder.addMatcher(functionTemplateDecl().bind(id_to_bind), &callback);
