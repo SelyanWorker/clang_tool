@@ -30,40 +30,43 @@ void foo2(Args... args)
     std::initializer_list<int>{ (bar(args.first, args.second), 0)... };
 }
 
-class shit_place
+class eba
 {
-public:
-    template<typename T>
-    void template_shit_fun()
+    class shit_place
     {
-    }
+    public:
+        template<typename T>
+        void public_template_shit_fun()
+        {
+        }
 
-    template<typename T>
-    struct template_shit_struct
-    {
-    };
+        template<typename T>
+        struct public_template_shit_struct
+        {
+        };
 
-    void shit_fun() {}
+        void public_shit_fun() {}
 
-    struct shit_struct
-    {
-    };
+        struct public_shit_struct
+        {
+        };
 
-private:
-    template<typename T>
-    void template_shit_fun_()
-    {
-    }
+    private:
+        template<typename T>
+        void private_template_shit_fun()
+        {
+        }
 
-    template<typename T>
-    struct template_shit_struct_
-    {
-    };
+        template<typename T>
+        struct private_template_shit_struct
+        {
+        };
 
-    void shit_fun_() {}
+        void private_shit_fun() {}
 
-    struct shit_struct_
-    {
+        struct private_shit_struct
+        {
+        };
     };
 };
 
